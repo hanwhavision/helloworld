@@ -3,14 +3,16 @@ run-name: ${{ github.actor }} is building out GitHub Actions 🚀
 on:
   workflow_dispatch:
     inputs:
-      SERVICE_NAME:
-        description: '빌드할 서비스를 선택하세요.'
+      logLevel:
+        description: 'Log level'
         required: true
-        default: 'adminfrontend'
+        default: 'warning'
         type: choice
-        option:
-        - adminfrontend
-        - apartmentservice
+        options:
+        - info
+        - warning
+        - debug
+
 
       ENVPREFIX:
         required: true
