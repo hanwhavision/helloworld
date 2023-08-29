@@ -4,19 +4,33 @@ on:
   workflow_dispatch:
     inputs:
       SERVICE_NAME:
+        type: choice
+        description: '빌드할 서비스를 선택하세요.'
         required: true
-        type: string
         default: 'admin-frontend'
+        option:
+          - admin-frontend
+          - apartment-service
+          - vote-service
+          - audit-service
+          - authn-service
+          - device-service
+          - forum-service
+          - reservation-service
+          - verification-service
+          - user-service
 
       ENVPREFIX:
+        type: choice
         required: true
-        type: string
-        default: 'prod'
+        option:
+          - prod
+          - QA
 
       DOCKER_PUSH:
-        description: 'docker push'
-        required: true
+        description: '빌드된 Docker file을 Push 하고 해당 TAG 정보를 업데이트 할 지 여부를 선택합니다.'
         type: boolean
+        required: true
         default: false
   
 jobs:
