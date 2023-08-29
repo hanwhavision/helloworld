@@ -1,5 +1,5 @@
-name: GitHub Actions TEST
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+name: MOPL_AWS_DinD_Build
+run-name: ${{ github.actor }} is building out GitHub Actions 🚀
 on:
   workflow_dispatch:
     inputs:
@@ -33,6 +33,8 @@ jobs:
           echo "SERVICE_NAME: $SERVICE_NAME"
           echo "ENVPREFIX: $ENVPREFIX"
           echo "DOCKER_PUSH: $DOCKER_PUSH"
+      - name: Check out repository code
+        uses: actions/checkout@v3
         env:
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
           ENVPREFIX: ${{ inputs.ENVPREFIX }}
