@@ -33,9 +33,17 @@ jobs:
           echo "SERVICE_NAME: $SERVICE_NAME"
           echo "ENVPREFIX: $ENVPREFIX"
           echo "DOCKER_PUSH: $DOCKER_PUSH"
-      - name: Check out repository code
-        uses: actions/checkout@v3
         env:
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
           ENVPREFIX: ${{ inputs.ENVPREFIX }}
           DOCKER_PUSH: ${{ inputs.DOCKER_PUSH }}
+    
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          repository: backend-sw-development-team4/smartparking-gitops
+          path: smartparking-gitops
+          ref: main
