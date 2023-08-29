@@ -9,24 +9,24 @@ on:
         default: 'admin-frontend'
         type: choice
         option:
-          - 'admin-frontend'
-          - 'apartment-service'
-          - 'vote-service'
-          - 'audit-service'
-          - 'authn-service'
-          - 'device-service'
-          - 'forum-service'
-          - 'reservation-service'
-          - 'verification-service'
-          - 'user-service'
+        - admin-frontend
+        - apartment-service
+        - vote-service
+        - audit-service
+        - authn-service
+        - device-service
+        - forum-service
+        - reservation-service
+        - verification-service
+        - user-service
 
       ENVPREFIX:
         required: true
         default: 'prod'
         type: choice
         option:
-          - 'prod'
-          - 'QA'
+        - prod
+        - QA
 
       DOCKER_PUSH:
         description: '빌드된 Docker file을 Push 하고 해당 TAG 정보를 업데이트 할 지 여부를 선택합니다.'
