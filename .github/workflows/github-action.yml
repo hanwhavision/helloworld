@@ -6,19 +6,11 @@ on:
       SERVICE_NAME:
         description: '빌드할 서비스를 선택하세요.'
         required: true
-        default: 'admin-frontend'
+        default: 'adminfrontend'
         type: choice
         option:
-        - admin-frontend
-        - apartment-service
-        - vote-service
-        - audit-service
-        - authn-service
-        - device-service
-        - forum-service
-        - reservation-service
-        - verification-service
-        - user-service
+        - adminfrontend
+        - apartmentservice
 
       ENVPREFIX:
         required: true
