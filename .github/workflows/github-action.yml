@@ -14,7 +14,7 @@ on:
         default: 'prod'
 
       DOCKER_PUSH:
-        description: 'docker push or not'
+        description: 'docker push'
         required: true
         type: boolean
         default: false
@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
+        options: --user root
         credentials:
            username: hyunsu.kang
            password: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
