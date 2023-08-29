@@ -24,9 +24,10 @@ on:
         required: true
         default: 'prod'
         type: choice
-        option:
+        options:
         - prod
         - QA
+        
 
       DOCKER_PUSH:
         description: '빌드된 Docker file을 Push 하고 해당 TAG 정보를 업데이트 할 지 여부를 선택합니다.'
