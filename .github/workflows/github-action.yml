@@ -10,9 +10,15 @@ on:
         type: choice
         options:
         - admin-frontend
-        - warning
-        - debug
-
+        - apartment-service
+        - vote-service
+        - audit-service
+        - authn-service
+        - device-service
+        - forum-service
+        - reservation-service
+        - verification-service
+        - user-service
 
       ENVPREFIX:
         required: true
