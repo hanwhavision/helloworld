@@ -1,0 +1,39 @@
+name: GitHub Actions TEST
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on:
+  workflow_dispatch:
+    inputs:
+      SERVICE_NAME:
+        required: true
+        type: string
+        default: 'admin-frontend'
+
+      ENVPREFIX:
+        required: true
+        type: string
+        default: 'prod'
+
+      DOCKER_PUSH:
+        description: 'docker push or not'
+        required: true
+        type: boolean
+        default: false
+  
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    container:
+        image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
+        credentials:
+           username: hyunsu.kang
+           password: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+    steps:
+      - run: |
+          echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+          echo "SERVICE_NAME: $SERVICE_NAME"
+          echo "ENVPREFIX: $ENVPREFIX"
+          echo "DOCKER_PUSH: $DOCKER_PUSH"
+        env:
+          SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
+          ENVPREFIX: ${{ inputs.ENVPREFIX }}
+          DOCKER_PUSH: ${{ inputs.DOCKER_PUSH }}
