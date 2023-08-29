@@ -6,10 +6,10 @@ on:
       SERVICE_NAME:
         description: '빌드할 서비스를 선택하세요.'
         required: true
-        default: 'warning'
+        default: 'admin-frontend'
         type: choice
         options:
-        - info
+        - admin-frontend
         - warning
         - debug
 
