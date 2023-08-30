@@ -89,7 +89,7 @@ jobs:
       - name: Check out repository code - gitops
         uses: actions/checkout@v3
         with:
-          repository: backend-sw-development-team4/gitops
+          repository: backend-sw-development-team4/smartparking-gitops
           path: smartparking-gitops/gitops
           ref: main
           token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
