@@ -103,7 +103,9 @@ jobs:
           echo github.workspace: ${{ github.workspace }}
 
       - run: |
+          sudo usermod -a -G docker <USER>
           sudo service docker start
+        continue-on-error: true
 
       - run: |
           BUILD_START_TIME=`date '+%Y%m%d_%H%M%S'`
@@ -111,7 +113,9 @@ jobs:
           AWS_DEFAULT_REGION="ap-northeast-2"
           AWS_ACCOUNT_ID="852637827699"
           IMAGE_REPO_NAME="mopl/${{ inputs.SERVICE_NAME }}"
-
+          pwd
+          docker images
+          docker ps
           aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
           docker build --network=host -t $IMAGE_REPO_NAME:$IMAGE_TAG .
           docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
