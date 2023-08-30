@@ -37,6 +37,8 @@ on:
 jobs:
   Build-GitHub-Actions:
     runs-on: ubuntu-latest
+    env:
+      build_path: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
         options: --user root
@@ -58,11 +60,13 @@ jobs:
         if: ${{ inputs.ENVPREFIX }} == 'prod'
         run: |
           echo "ENVPREFIX_BRANCH=main" >> "$GITHUB_ENV"
+          echo "ENVPREFIX_lowcase=prod" >> "$GITHUB_ENV"
 
       - name: Set BRANCH ENVPREFIX is QA
         if: ${{ inputs.ENVPREFIX }} == 'QA'
         run: |
           echo "ENVPREFIX_BRANCH=release" >> "$GITHUB_ENV"
+          echo "ENVPREFIX_lowcase=qa" >> "$GITHUB_ENV"
 
       - run: |
           echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
@@ -94,4 +98,23 @@ jobs:
           ref: main
           token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
 
-          
+      - run: |
+          echo build_path: ${{ env.build_path }}
+          echo github.workspace: ${{ github.workspace }}
+
+      - run: |
+          sudo service docker start
+
+      - run: |
+          BUILD_START_TIME=`date '+%Y%m%d_%H%M%S'`
+          IMAGE_TAG="${{ env.ENVPREFIX_lowcase }}-$BUILD_START_TIME-R${{ github.run_number }}"
+          AWS_DEFAULT_REGION="ap-northeast-2"
+          AWS_ACCOUNT_ID="852637827699"
+          IMAGE_REPO_NAME="mopl/${{ inputs.SERVICE_NAME }}"
+
+          aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+          docker build --network=host -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+          docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+        working-directory: ${{ env.build_path }}
+
+
