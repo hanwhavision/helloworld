@@ -33,11 +33,18 @@ on:
         type: boolean
         required: true
         default: false
-  
+
+      QUALITY_REPORT:
+        description: '소스코드 품질지표 (정적분석)을 산출 합니다.'
+        type: boolean
+        required: true
+        default: false
+
 jobs:
   Build-GitHub-Actions:
     runs-on: ubuntu-latest
     env:
+      work_path: ./smartparking-gitops
       build_path: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
@@ -51,13 +58,15 @@ jobs:
           echo "SERVICE_NAME: $SERVICE_NAME"
           echo "ENVPREFIX: $ENVPREFIX"
           echo "DOCKER_PUSH: $DOCKER_PUSH"
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "github.workspace: ${{ github.workspace }}"
+          echo "QUALITY_REPORT: $QUALITY_REPORT"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE" #/__w/helloworld/helloworld          
+          #echo "github.workspace: ${{ github.workspace }}" #/home/runner/work/helloworld/helloworld
 
         env:
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
           ENVPREFIX: ${{ inputs.ENVPREFIX }}
           DOCKER_PUSH: ${{ inputs.DOCKER_PUSH }}
+          QUALITY_REPORT: ${{ inputs.QUALITY_REPORT }}
 
       - name: Set BRANCH ENVPREFIX is prod
         if: ${{ inputs.ENVPREFIX }} == 'prod'
@@ -100,6 +109,46 @@ jobs:
           path: smartparking-gitops/gitops
           ref: main
           token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
+
+      - name: coverity
+        if: ${{ inputs.QUALITY_REPORT }} == 'true'
+        run: |
+          echo "CI_STEP_StaticAnalysis1"
+          cd ~
+          pwd
+          echo "CI_STEP_StaticAnalysis2"
+          STREAM="mopl-${{ inputs.SERVICE_NAME }}"
+          CSA_DIR=/opt/cov-analysis-linux64-${COVERITY_VERSION}
+          COVERITY_CONFIG=~/coverity_config
+          COVERITY_INTERMEDIATE=~/coverity_emit_data
+          CIMIP=coverity-se.net
+          DATAPORT=9090
+          CIM_USER=stream_account
+          CIM_PASSWD=stream
+
+          mkdir $COVERITY_CONFIG
+          mkdir $COVERITY_INTERMEDIATE
+
+          ${CSA_DIR}/bin/cov-configure --config ~/coverity_config/${{ inputs.SERVICE_NAME }}_config.xml --javascript
+          ${CSA_DIR}/bin/cov-configure --config ~/coverity_config/${{ inputs.SERVICE_NAME }}_config.xml --typescript
+          
+          APP_REVISION=`git rev-parse --short HEAD`;
+
+          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG}/${{ inputs.SERVICE_NAME }}_config.xml --dir ${INTERMEDIATE} -fs-capture-search ${{ env.work_path }} --no-command
+          ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${INTERMEDIATE} --wait-for-license          
+          cov_commit="${CSA_DIR}/bin/cov-commit-defects --host ${CIMIP} --dataport ${DATAPORT} --stream ${STREAM} --dir ${INTERMEDIATE} --user ${CIM_USER} --password ${CIM_PASSWD} --cva --version ${APP_REVISION}";
+
+          max_try_count=10;
+          while ! ${cov_commit} && [ $max_try_count -ne 0 ]; do
+              echo "Remaining  try-count : ${max_try_count}";
+              max_try_count=$((max_try_count-1)); 
+              sleep 120;
+              if [ $max_try_count -eq "0" ] ; then
+                  echo "fail cov-commit";
+                  exit 1;
+              fi
+          done
+        working-directory: ${{ env.build_path }}
 
       - name: copy aws config & build docker image
         run: |
