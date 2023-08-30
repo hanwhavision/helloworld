@@ -83,8 +83,8 @@ jobs:
         with:
           repository: backend-sw-development-team4/${{ inputs.SERVICE_NAME }}
           path: smartparking-gitops/${{ inputs.SERVICE_NAME }}
-          ref: $ENVPREFIX_BRANCH
-          token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+          ref: ${{ env.ENVPREFIX_BRANCH }}
+          token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
 
       - name: Check out repository code - gitops
         uses: actions/checkout@v3
@@ -92,6 +92,6 @@ jobs:
           repository: backend-sw-development-team4/gitops
           path: smartparking-gitops/gitops
           ref: main
-          token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+          token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
 
           
