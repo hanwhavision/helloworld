@@ -44,7 +44,6 @@ jobs:
   Build-GitHub-Actions:
     runs-on: ubuntu-latest
     env:
-      work_path: ./smartparking-gitops
       build_path: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
@@ -61,6 +60,7 @@ jobs:
           echo "QUALITY_REPORT: $QUALITY_REPORT"
           echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE" #/__w/helloworld/helloworld          
           #echo "github.workspace: ${{ github.workspace }}" #/home/runner/work/helloworld/helloworld
+          #cd ~ && pwd #/github/home
 
         env:
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
@@ -113,14 +113,12 @@ jobs:
       - name: coverity
         if: ${{ inputs.QUALITY_REPORT }} == 'true'
         run: |
-          echo "CI_STEP_StaticAnalysis1"
-          cd ~
-          pwd
-          echo "CI_STEP_StaticAnalysis2"
+          echo "CI_STEP_StaticAnalysis"          
           STREAM="mopl-${{ inputs.SERVICE_NAME }}"
           CSA_DIR=/opt/cov-analysis-linux64-${COVERITY_VERSION}
-          COVERITY_CONFIG=~/coverity_config
-          COVERITY_INTERMEDIATE=~/coverity_emit_data
+          COVERITY_CONFIG=${GITHUB_WORKSPACE}/coverity_config
+          COVERITY_CONFIG_XML=${GITHUB_WORKSPACE}/coverity_config/config.xml
+          COVERITY_INTERMEDIATE=${GITHUB_WORKSPACE}/coverity_emit_data
           CIMIP=coverity-se.net
           DATAPORT=9090
           CIM_USER=stream_account
@@ -129,13 +127,13 @@ jobs:
           mkdir $COVERITY_CONFIG
           mkdir $COVERITY_INTERMEDIATE
 
-          ${CSA_DIR}/bin/cov-configure --config ~/coverity_config/${{ inputs.SERVICE_NAME }}_config.xml --javascript
-          ${CSA_DIR}/bin/cov-configure --config ~/coverity_config/${{ inputs.SERVICE_NAME }}_config.xml --typescript
+          ${CSA_DIR}/bin/cov-configure --config ${COVERITY_CONFIG_XML} --javascript
+          ${CSA_DIR}/bin/cov-configure --config ${COVERITY_CONFIG_XML} --typescript
           
           APP_REVISION=`git rev-parse --short HEAD`;
 
-          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG}/${{ inputs.SERVICE_NAME }}_config.xml --dir ${INTERMEDIATE} -fs-capture-search ${{ env.work_path }} --no-command
-          ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${INTERMEDIATE} --wait-for-license          
+          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${INTERMEDIATE} -fs-capture-search ${{ env.build_path }} --no-command
+          ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${INTERMEDIATE} --wait-for-license
           cov_commit="${CSA_DIR}/bin/cov-commit-defects --host ${CIMIP} --dataport ${DATAPORT} --stream ${STREAM} --dir ${INTERMEDIATE} --user ${CIM_USER} --password ${CIM_PASSWD} --cva --version ${APP_REVISION}";
 
           max_try_count=10;
