@@ -115,7 +115,7 @@ jobs:
           docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
           docker images | grep amazonaws
 
-          if [ $DOCKER_PUSH = "true" ] ; then
+          if [ ${{ inputs.DOCKER_PUSH }} = "true" ] ; then
             echo "docker push"
           fi
         working-directory: ${{ env.build_path }}
