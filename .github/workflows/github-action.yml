@@ -104,7 +104,9 @@ jobs:
       - run: |
           echo build_path: ${{ env.build_path }}
           echo github.workspace: ${{ github.workspace }}
-          cp -R /home/docker/.aws /__w
+          cp -R /home/docker/.aws ./
+          cp -R /home/docker/.aws ~/
+          echo $USER
           pwd
 
       - run: |
