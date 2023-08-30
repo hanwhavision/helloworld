@@ -51,6 +51,9 @@ jobs:
           echo "SERVICE_NAME: $SERVICE_NAME"
           echo "ENVPREFIX: $ENVPREFIX"
           echo "DOCKER_PUSH: $DOCKER_PUSH"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE
+          echo "github.workspace: ${{ github.workspace }}"
+
         env:
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
           ENVPREFIX: ${{ inputs.ENVPREFIX }}
