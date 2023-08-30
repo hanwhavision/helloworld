@@ -51,7 +51,7 @@ jobs:
           echo "SERVICE_NAME: $SERVICE_NAME"
           echo "ENVPREFIX: $ENVPREFIX"
           echo "DOCKER_PUSH: $DOCKER_PUSH"
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           echo "github.workspace: ${{ github.workspace }}"
 
         env:
@@ -104,8 +104,7 @@ jobs:
       - run: |
           echo build_path: ${{ env.build_path }}
           echo github.workspace: ${{ github.workspace }}
-          ls ${{ github.workspace }}
-          cp -R /home/docker/.aws /home/runner
+          cp -R /home/docker/.aws /__w
           pwd
 
       - run: |
