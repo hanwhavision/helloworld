@@ -26,17 +26,16 @@ on:
         type: choice
         options:
         - prod
-        - QA
-        
+        - QA        
 
       DOCKER_PUSH:
-        description: '빌드된 Docker file을 Push 하고 해당 TAG 정보를 업데이트 할 지 여부를 선택합니다.'
+        description: '빌드된 Docker 이미지를 aws에 Push하고 TAG정보를 업데이트 할 지 선택합니다.'
         type: boolean
         required: true
         default: false
   
 jobs:
-  Explore-GitHub-Actions:
+  Build-GitHub-Actions:
     runs-on: ubuntu-latest
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
@@ -54,6 +53,18 @@ jobs:
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
           ENVPREFIX: ${{ inputs.ENVPREFIX }}
           DOCKER_PUSH: ${{ inputs.DOCKER_PUSH }}
+
+      - name: Set BRANCH ENVPREFIX is prod
+        if: ${{ inputs.ENVPREFIX }} == 'prod'
+        env:
+          ENVPREFIX_BRANCH: main
+
+      - name: Set BRANCH ENVPREFIX is QA
+        if: ${{ inputs.ENVPREFIX }} == 'QA'
+        env:
+          ENVPREFIX_BRANCH: release
+
+      - run: echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
     
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
@@ -65,3 +76,21 @@ jobs:
           path: smartparking-gitops
           ref: main
           token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+
+      - name: Check out repository code - service_name
+        uses: actions/checkout@v3
+        with:
+          repository: backend-sw-development-team4/${{ inputs.SERVICE_NAME }}
+          path: smartparking-gitops/${{ inputs.SERVICE_NAME }}
+          ref: $ENVPREFIX_BRANCH
+          token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+
+      - name: Check out repository code - gitops
+        uses: actions/checkout@v3
+        with:
+          repository: backend-sw-development-team4/gitops
+          path: smartparking-gitops/gitops
+          ref: main
+          token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+
+          
