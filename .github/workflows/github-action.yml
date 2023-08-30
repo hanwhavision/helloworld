@@ -56,18 +56,14 @@ jobs:
 
       - name: Set BRANCH ENVPREFIX is prod
         if: ${{ inputs.ENVPREFIX }} == 'prod'
-        env:
-          ENVPREFIX_BRANCH: main
         run: |
-          echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
+          echo "ENVPREFIX_BRANCH=main" >> "$GITHUB_ENV"
 
       - name: Set BRANCH ENVPREFIX is QA
         if: ${{ inputs.ENVPREFIX }} == 'QA'
-        env:
-          ENVPREFIX_BRANCH: release
         run: |
-          echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
-          
+          echo "ENVPREFIX_BRANCH=release" >> "$GITHUB_ENV"
+
       - run: |
           echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
     
