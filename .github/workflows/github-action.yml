@@ -64,7 +64,8 @@ jobs:
         env:
           ENVPREFIX_BRANCH: release
 
-      - run: echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
+      - run: |
+          echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
     
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
