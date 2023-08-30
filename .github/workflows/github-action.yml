@@ -38,7 +38,7 @@ jobs:
   Build-GitHub-Actions:
     runs-on: ubuntu-latest
     env:
-      build_path: /home/docker/dev/smartparking-gitops/${{ inputs.SERVICE_NAME }}
+      build_path: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
         options: --user root
@@ -73,14 +73,12 @@ jobs:
     
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
-        with:
-          path: /home/docker/Dev/helloworld
 
       - name: Check out repository code - smartparking-gitops
         uses: actions/checkout@v3
         with:
           repository: backend-sw-development-team4/smartparking-gitops
-          path: /home/docker/Dev/smartparking-gitops
+          path: smartparking-gitops
           ref: main
           token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
 
@@ -88,7 +86,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: backend-sw-development-team4/${{ inputs.SERVICE_NAME }}
-          path: /home/docker/Dev/smartparking-gitops/${{ inputs.SERVICE_NAME }}
+          path: smartparking-gitops/${{ inputs.SERVICE_NAME }}
           ref: ${{ env.ENVPREFIX_BRANCH }}
           token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
 
@@ -96,13 +94,16 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: backend-sw-development-team4/smartparking-gitops
-          path: /home/docker/Dev/smartparking-gitops/gitops
+          path: smartparking-gitops/gitops
           ref: main
           token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
 
       - run: |
           echo build_path: ${{ env.build_path }}
           echo github.workspace: ${{ github.workspace }}
+          ls ${{ github.workspace }}
+          cp -R /home/docker/.aws /home/runner
+          pwd
 
       - run: |
           BUILD_START_TIME=`date '+%Y%m%d_%H%M%S'`
@@ -111,8 +112,6 @@ jobs:
           AWS_ACCOUNT_ID="852637827699"
           IMAGE_REPO_NAME="mopl/${{ inputs.SERVICE_NAME }}"
           pwd
-          docker images
-          docker ps
           aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
           docker build --network=host -t $IMAGE_REPO_NAME:$IMAGE_TAG .
           docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
