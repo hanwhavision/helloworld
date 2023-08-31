@@ -91,24 +91,24 @@ jobs:
           echo "IMAGE_TAG: ${{ env.IMAGE_TAG }}"
 
       - name: test1
-        if: inputs.DOCKER_PUSH == 'false'
+        if: inputs.DOCKER_PUSH == false
         run: |
           echo "docker push false"
 
       - name: test2
-        if: inputs.DOCKER_PUSH == 'true'
+        if: inputs.DOCKER_PUSH == true
         run: |
           echo "docker push true"
 
       - name: test3
-        if: inputs.QUALITY_REPORT == 'false'
+        if: inputs.QUALITY_REPORT == false
         run: |
-          echo "QUALITY_REPORT push false"
+          echo "QUALITY_REPORT false"
 
       - name: test4
-        if: inputs.QUALITY_REPORT == 'true'
+        if: inputs.QUALITY_REPORT == true
         run: |
-          echo "QUALITY_REPORT push true"
+          echo "QUALITY_REPORT true"
 
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
