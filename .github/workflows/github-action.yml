@@ -157,13 +157,25 @@ jobs:
         run: |
           cp -R /home/docker/.aws ~/
           aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}
-          docker build --network=host -t ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} . || exit 1
+          docker build --build-arg NPM_TOKEN=${{  secrets.PACKAGE_CONTAINER_AUTH }} --network=host -t ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} . || exit 1
           docker tag ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           docker images | grep amazonaws
-
-          if [ ${{ inputs.DOCKER_PUSH }} = "true" ] ; then
-            echo "docker push"
-          fi
         working-directory: ${{ env.BUILD_PATH }}
 
-        
+      - name: docker image push
+        if: ${{ inputs.DOCKER_PUSH }} == 'true'
+        run: |
+          echo "docker push"
+          pwd
+          git checkout main
+          cat kustomization.yaml | sed -i "s/newTag: .*\$/newTag: ${{ env.IMAGE_TAG }}/g" kustomization.yaml
+
+          git config credential.helper store
+          git config --global credential.helper 'cache --timeout=300'
+          git config --global user.email "jenkins@hanwha.com"
+          git config --global user.name "jenkins"
+          git add kustomization.yaml
+          git commit -m "[artf116567] modify tag in ${{ inputs.SERVICE_NAME }} ${{ env.ENVPREFIX_lowcase }}"
+          git pull origin main
+          #git push origin main
+        working-directory: ${{ env.BUILD_PATH }}/gitops/env/${{ env.ENVPREFIX_lowcase }}
