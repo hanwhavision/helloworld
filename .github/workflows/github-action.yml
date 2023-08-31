@@ -1,5 +1,5 @@
 name: MOPL_AWS_DinD_Build
-run-name: ${{ github.run_number }} ${{ inputs.ENVPREFIX }} ${{ inputs.SERVICE_NAME }} with branch ${{ github.ref_name }} (docker image push is ${{ inputs.DOCKER_PUSH }} 🚀
+run-name: '#'${{ github.run_number }} ${{ inputs.ENVPREFIX }} ${{ inputs.SERVICE_NAME }} with branch ${{ github.ref_name }} (docker image push is ${{ inputs.DOCKER_PUSH }}) 🚀
 on:
   workflow_dispatch:
     inputs:
@@ -68,20 +68,17 @@ jobs:
           DOCKER_PUSH: ${{ inputs.DOCKER_PUSH }}
           QUALITY_REPORT: ${{ inputs.QUALITY_REPORT }}
 
-      - name: Set BRANCH ENVPREFIX is prod
+      - name: Set ENV prod
         if: ${{ inputs.ENVPREFIX }} == 'prod'
         run: |
           echo "ENVPREFIX_BRANCH=main" >> "$GITHUB_ENV"
           echo "ENVPREFIX_lowcase=prod" >> "$GITHUB_ENV"
 
-      - name: Set BRANCH ENVPREFIX is QA
+      - name: Set ENV QA
         if: ${{ inputs.ENVPREFIX }} == 'QA'
         run: |
           echo "ENVPREFIX_BRANCH=release" >> "$GITHUB_ENV"
           echo "ENVPREFIX_lowcase=qa" >> "$GITHUB_ENV"
-
-      - run: |
-          echo "ENVPREFIX_BRANCH: $ENVPREFIX_BRANCH"
     
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
@@ -94,7 +91,7 @@ jobs:
           ref: main
           token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
 
-      - name: Check out repository code - service_name
+      - name: Check out repository code - ${{ inputs.SERVICE_NAME }}
         uses: actions/checkout@v3
         with:
           repository: backend-sw-development-team4/${{ inputs.SERVICE_NAME }}
@@ -132,7 +129,10 @@ jobs:
           
           APP_REVISION=`git rev-parse --short HEAD`;
 
-          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${INTERMEDIATE} -fs-capture-search ${{ env.build_path }} --no-command
+          echo "cov-build command:"
+          echo "${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command"
+
+          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command
           ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${INTERMEDIATE} --wait-for-license
           cov_commit="${CSA_DIR}/bin/cov-commit-defects --host ${CIMIP} --dataport ${DATAPORT} --stream ${STREAM} --dir ${INTERMEDIATE} --user ${CIM_USER} --password ${CIM_PASSWD} --cva --version ${APP_REVISION}";
 
