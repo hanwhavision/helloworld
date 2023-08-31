@@ -48,7 +48,12 @@ jobs:
       AWS_DEFAULT_REGION: "ap-northeast-2"
       BUILD_PATH: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
       IMAGE_REPO_NAME: "mopl/${{ inputs.SERVICE_NAME }}"
-
+    container:
+        image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
+        options: --user root
+        credentials:
+           username: hyunsu.kang
+           password: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
     steps:
       - run: |
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -90,26 +95,6 @@ jobs:
         run: |
           echo "IMAGE_TAG: ${{ env.IMAGE_TAG }}"
 
-      - name: test1
-        if: inputs.DOCKER_PUSH == false
-        run: |
-          echo "docker push false"
-
-      - name: test2
-        if: inputs.DOCKER_PUSH == true
-        run: |
-          echo "docker push true"
-
-      - name: test3
-        if: inputs.QUALITY_REPORT == false
-        run: |
-          echo "QUALITY_REPORT false"
-
-      - name: test4
-        if: inputs.QUALITY_REPORT == true
-        run: |
-          echo "QUALITY_REPORT true"
-
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
 
@@ -138,7 +123,7 @@ jobs:
           token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
 
       - name: coverity
-        if: inputs.QUALITY_REPORT == 'true'
+        if: inputs.QUALITY_REPORT == true
         run: |
           echo "CI_STEP_StaticAnalysis"          
           STREAM="mopl-${{ inputs.SERVICE_NAME }}"
@@ -185,7 +170,7 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
 
       - name: docker image push
-        if: inputs.DOCKER_PUSH == 'true'
+        if: inputs.DOCKER_PUSH == true
         run: |
           echo "docker push true"
           pwd
