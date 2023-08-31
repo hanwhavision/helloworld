@@ -168,8 +168,6 @@ jobs:
       - name: docker image push
         if: inputs.DOCKER_PUSH == true
         run: |
-          echo "docker push true"
-          #docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           pwd
           git checkout main
           cat kustomization.yaml | sed -i "s/newTag: .*\$/newTag: ${{ env.IMAGE_TAG }}/g" kustomization.yaml
@@ -180,5 +178,8 @@ jobs:
           git add kustomization.yaml
           git commit -m "[artf116567] modify tag in ${{ inputs.SERVICE_NAME }} ${{ env.ENVPREFIX_lowcase }}"
           git pull origin main
+          
+          echo "docker push true"
+          #docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           #git push origin main
         working-directory: smartparking-gitops/gitops/${{ inputs.SERVICE_NAME }}/env/${{ env.ENVPREFIX_lowcase }}
