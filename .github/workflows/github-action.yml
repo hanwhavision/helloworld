@@ -184,4 +184,4 @@ jobs:
           git commit -m "[artf116567] modify tag in ${{ inputs.SERVICE_NAME }} ${{ env.ENVPREFIX_lowcase }}"
           git pull origin main
           #git push origin main
-        working-directory: ${{ env.BUILD_PATH }}/gitops/env/${{ env.ENVPREFIX_lowcase }}
+        working-directory: $GITHUB_WORKSPACE/smartparking-gitops/gitops/env/${{ env.ENVPREFIX_lowcase }}
