@@ -173,6 +173,7 @@ jobs:
         if: inputs.DOCKER_PUSH == true
         run: |
           echo "docker push true"
+          #docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           pwd
           git checkout main
           cat kustomization.yaml | sed -i "s/newTag: .*\$/newTag: ${{ env.IMAGE_TAG }}/g" kustomization.yaml
