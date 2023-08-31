@@ -48,7 +48,12 @@ jobs:
       AWS_DEFAULT_REGION: "ap-northeast-2"
       BUILD_PATH: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
       IMAGE_REPO_NAME: "mopl/${{ inputs.SERVICE_NAME }}"
-
+    container:
+        image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
+        options: --user root
+        credentials:
+           username: hyunsu.kang
+           password: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
     steps:
       - run: |
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -86,10 +91,6 @@ jobs:
         run: |
           echo "IMAGE_TAG=${{ env.ENVPREFIX_lowcase }}-${{ env.BUILD_START_TIME }}-R${{ github.run_number }}" >> "$GITHUB_ENV"
 
-      - name: echo image TAG
-        run: |
-          echo "IMAGE_TAG: ${{ env.IMAGE_TAG }}"
-
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
 
@@ -116,15 +117,6 @@ jobs:
           path: smartparking-gitops/gitops
           ref: main
           token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
-
-
-      - name: check git clone
-        run: ls -al
-        working-directory: smartparking-gitops/gitops
-
-      - name: check git clone
-        run: ls -al
-        working-directory: smartparking-gitops/gitops/${{ inputs.SERVICE_NAME }}/env/${{ env.ENVPREFIX_lowcase }}
 
       - name: coverity
         if: inputs.QUALITY_REPORT == true
@@ -165,7 +157,6 @@ jobs:
         working-directory: ${{ env.BUILD_PATH }}
 
       - name: copy aws config & build docker image
-        if: inputs.DOCKER_PUSH == true
         run: |
           cp -R /home/docker/.aws ~/
           aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}
