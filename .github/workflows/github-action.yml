@@ -86,7 +86,7 @@ jobs:
       - name: Set ENV AWS
         run: |
           echo "BUILD_START_TIME=`date '+%Y%m%d_%H%M%S'`" >> "$GITHUB_ENV"
-          echo "IMAGE_TAG="${{ env.ENVPREFIX_lowcase }}-${{ env.BUILD_START_TIME }}-R${{ github.run_number }}"" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG="${{ env.ENVPREFIX_lowcase }}-${{ env.BUILD_START_TIME }}-R${{ github.run_number }}" >> "$GITHUB_ENV"
           echo "IMAGE_TAG: ${{ env.IMAGE_TAG }}"
 
       - name: Check out repository code - helloworld
@@ -163,10 +163,30 @@ jobs:
           docker images | grep amazonaws
         working-directory: ${{ env.BUILD_PATH }}
 
+      - name: test1
+        if: inputs.DOCKER_PUSH == 'false'
+        run: |
+          echo "docker push false"
+
+      - name: test2
+        if: inputs.DOCKER_PUSH == 'true'
+        run: |
+          echo "docker push true"
+
+      - name: test3
+        if: inputs.QUALITY_REPORT == 'false'
+        run: |
+          echo "QUALITY_REPORT push false"
+
+      - name: test4
+        if: inputs.QUALITY_REPORT == 'true'
+        run: |
+          echo "QUALITY_REPORT push true"
+
       - name: docker image push
         if: inputs.DOCKER_PUSH == 'true'
         run: |
-          echo "docker push"
+          echo "docker push true"
           pwd
           git checkout main
           cat kustomization.yaml | sed -i "s/newTag: .*\$/newTag: ${{ env.IMAGE_TAG }}/g" kustomization.yaml
