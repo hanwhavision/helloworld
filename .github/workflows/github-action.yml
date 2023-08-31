@@ -1,5 +1,5 @@
 name: MOPL_AWS_DinD_Build
-run-name: "#" ${{ github.run_number }} ${{ inputs.ENVPREFIX }} ${{ inputs.SERVICE_NAME }} with branch ${{ github.ref_name }} (docker image push is ${{ inputs.DOCKER_PUSH }}) 🚀
+run-name:  '\$'{{ github.run_number }} ${{ inputs.ENVPREFIX }} ${{ inputs.SERVICE_NAME }} with branch ${{ github.ref_name }} (docker image push is ${{ inputs.DOCKER_PUSH }}) 🚀
 on:
   workflow_dispatch:
     inputs:
