@@ -1,5 +1,5 @@
 name: MOPL_AWS_DinD_Build
-run-name: \\#${{ github.run_number }} ${{ inputs.ENVPREFIX }} ${{ inputs.SERVICE_NAME }} with branch ${{ github.ref_name }} (docker image push is ${{ inputs.DOCKER_PUSH }}) 🚀
+run-name: [#${{ github.run_number }}] ${{ inputs.ENVPREFIX }} ${{ inputs.SERVICE_NAME }} with branch ${{ github.ref_name }} (docker image push is ${{ inputs.DOCKER_PUSH }}) 🚀
 on:
   workflow_dispatch:
     inputs:
@@ -130,11 +130,11 @@ jobs:
           APP_REVISION=`git rev-parse --short HEAD`;
 
           echo "cov-build command:"
-          echo "${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command"
+          echo "${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command"
 
-          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command
-          ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${INTERMEDIATE} --wait-for-license
-          cov_commit="${CSA_DIR}/bin/cov-commit-defects --host ${CIMIP} --dataport ${DATAPORT} --stream ${STREAM} --dir ${INTERMEDIATE} --user ${CIM_USER} --password ${CIM_PASSWD} --cva --version ${APP_REVISION}";
+          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command
+          ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
+          cov_commit="${CSA_DIR}/bin/cov-commit-defects --host ${CIMIP} --dataport ${DATAPORT} --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --user ${CIM_USER} --password ${CIM_PASSWD} --cva --version ${APP_REVISION}";
 
           max_try_count=10;
           while ! ${cov_commit} && [ $max_try_count -ne 0 ]; do
