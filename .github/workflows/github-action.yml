@@ -83,10 +83,16 @@ jobs:
           echo "ENVPREFIX_BRANCH=release" >> "$GITHUB_ENV"
           echo "ENVPREFIX_lowcase=qa" >> "$GITHUB_ENV"
 
-      - name: Set ENV AWS
+      - name: Set ENV BUILD_START_TIME
         run: |
           echo "BUILD_START_TIME=`date '+%Y%m%d_%H%M%S'`" >> "$GITHUB_ENV"
+
+      - name: Set ENV IMAGE_TAG
+        run: |
           echo "IMAGE_TAG="${{ env.ENVPREFIX_lowcase }}-${{ env.BUILD_START_TIME }}-R${{ github.run_number }}" >> "$GITHUB_ENV"
+
+      - name: echo image TAG
+        run: |
           echo "IMAGE_TAG: ${{ env.IMAGE_TAG }}"
 
       - name: Check out repository code - helloworld
