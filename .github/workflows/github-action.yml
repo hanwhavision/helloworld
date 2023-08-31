@@ -44,7 +44,10 @@ jobs:
   Build-GitHub-Actions:
     runs-on: ubuntu-latest
     env:
-      build_path: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
+      AWS_ACCOUNT_ID: "852637827699"
+      AWS_DEFAULT_REGION: "ap-northeast-2"
+      BUILD_PATH: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
+      IMAGE_REPO_NAME: "mopl/${{ inputs.SERVICE_NAME }}"
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
         options: --user root
@@ -79,7 +82,12 @@ jobs:
         run: |
           echo "ENVPREFIX_BRANCH=release" >> "$GITHUB_ENV"
           echo "ENVPREFIX_lowcase=qa" >> "$GITHUB_ENV"
-    
+
+      - name: Set ENV AWS
+        run: |
+          echo "BUILD_START_TIME=`date '+%Y%m%d_%H%M%S'`" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG="${{ env.ENVPREFIX_lowcase }}-${BUILD_START_TIME}-R${{ github.run_number }}"" >> "$GITHUB_ENV"
+
       - name: Check out repository code - helloworld
         uses: actions/checkout@v3
 
@@ -129,9 +137,6 @@ jobs:
           
           APP_REVISION=`git rev-parse --short HEAD`;
 
-          echo "cov-build command:"
-          echo "${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command"
-
           ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command
           ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
           cov_commit="${CSA_DIR}/bin/cov-commit-defects --host ${CIMIP} --dataport ${DATAPORT} --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --user ${CIM_USER} --password ${CIM_PASSWD} --cva --version ${APP_REVISION}";
@@ -146,25 +151,19 @@ jobs:
                   exit 1;
               fi
           done
-        working-directory: ${{ env.build_path }}
+        working-directory: ${{ env.BUILD_PATH }}
 
       - name: copy aws config & build docker image
         run: |
-          BUILD_START_TIME=`date '+%Y%m%d_%H%M%S'`
-          IMAGE_TAG="${{ env.ENVPREFIX_lowcase }}-$BUILD_START_TIME-R${{ github.run_number }}"
-          AWS_DEFAULT_REGION="ap-northeast-2"
-          AWS_ACCOUNT_ID="852637827699"
-          IMAGE_REPO_NAME="mopl/${{ inputs.SERVICE_NAME }}"
-          pwd
           cp -R /home/docker/.aws ~/
-          aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
-          docker build --network=host -t $IMAGE_REPO_NAME:$IMAGE_TAG . || exit 1
-          docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+          aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}
+          docker build --network=host -t ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} . || exit 1
+          docker tag ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           docker images | grep amazonaws
 
           if [ ${{ inputs.DOCKER_PUSH }} = "true" ] ; then
             echo "docker push"
           fi
-        working-directory: ${{ env.build_path }}
+        working-directory: ${{ env.BUILD_PATH }}
 
         
