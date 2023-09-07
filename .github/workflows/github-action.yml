@@ -168,8 +168,6 @@ jobs:
       - name: docker image push
         if: inputs.DOCKER_PUSH == true
         run: |
-          pwd
-          git checkout main
           cat kustomization.yaml | sed -i "s/newTag: .*\$/newTag: ${{ env.IMAGE_TAG }}/g" kustomization.yaml
           git config credential.helper store
           git config --global credential.helper 'cache --timeout=300'
@@ -177,8 +175,7 @@ jobs:
           git config --global user.name "jenkins"
           git add kustomization.yaml
           git commit -m "[artf116567] modify tag in ${{ inputs.SERVICE_NAME }} ${{ env.ENVPREFIX_lowcase }}"
-          git pull origin main
-          
+
           echo "docker push true"
           #docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           #git push origin main
