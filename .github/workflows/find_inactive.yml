@@ -28,13 +28,15 @@ jobs:
           ruby-version: '3.2' # Not needed with a .ruby-version file
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
-      - name: build
+      - name: install octokit
         run: |
           echo "install octokit"
-          pwd          
           gem install octokit
+
+      - name: exec ruby script
+        run: |
           echo "export token"
           export OCTOKIT_ACCESS_TOKEN=${{ secrets.GIT_TOKEN_FOR_FIND_INACTIVE_USER }}
           echo "ruby exec"
           ruby find_inactive_members.rb -o ${{ inputs.ORGANIZATION }} -d "Sep 06 2023"
-        working-directory: platform-samples
+        working-directory: platform-samples/api/ruby/
