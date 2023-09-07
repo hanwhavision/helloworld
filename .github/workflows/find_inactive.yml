@@ -39,4 +39,4 @@ jobs:
           export OCTOKIT_ACCESS_TOKEN=${{ secrets.GIT_TOKEN_FOR_FIND_INACTIVE_USER }}
           echo "ruby exec"
           ruby find_inactive_members.rb -o ${{ inputs.ORGANIZATION }} -d "Sep 06 2023"
-        working-directory: platform-samples/api/ruby/
+        working-directory: platform-samples/api/ruby/find-inactive-members
