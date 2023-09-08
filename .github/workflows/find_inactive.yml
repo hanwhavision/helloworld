@@ -38,5 +38,20 @@ jobs:
           echo "export token"
           export OCTOKIT_ACCESS_TOKEN=${{ secrets.GIT_TOKEN_FOR_FIND_INACTIVE_USER }}
           echo "ruby exec"
-          ruby find_inactive_members.rb -e -o ${{ inputs.ORGANIZATION }} -d "Sep 06 2023"
+          
+          ORG_NAME=("backend-sw-development-team2" "backend-sw-development-team3" "backend-sw-development-team4" "cloud-development-team" "hanwhavision-admin-test" "platform-sw-development-team2")
+          PAST_DATE=`date -d '6 month ago' "+%b %d %Y"`
+          TRIM_PAST_DATE=`echo $PAST_DATE | sed 's/ *$//g'`
+
+          for ORGANIZATION in "${ORG_NAME[@]}";
+          do
+            ruby find_inactive_members.rb -o $ORGANIZATION -d $TRIM_PAST_DATE | grep inactive | cut -d "\"" -f2 >> inactive_users.txt
+          done
+          echo inactive_users.txt
         working-directory: platform-samples/api/ruby/find-inactive-members
+      
+      - name: upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: inactive_users
+          path: platform-samples/api/ruby/find-inactive-members/inactive_users.txt
