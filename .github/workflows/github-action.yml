@@ -58,6 +58,8 @@ jobs:
     steps:
       - run: |
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+          echo "github.action: ${{ github.action }}"
+          echo "github.job: ${{ github.job }}"
           echo "SERVICE_NAME: $SERVICE_NAME"
           echo "ENVPREFIX: $ENVPREFIX"
           echo "DOCKER_PUSH: $DOCKER_PUSH"
@@ -143,7 +145,7 @@ jobs:
 
           ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command
           ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
-          cov_commit="${CSA_DIR}/bin/cov-commit-defects --url http://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --cva --version ${APP_REVISION}";
+          cov_commit="${CSA_DIR}/bin/cov-commit-defects --url http://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --stream MOPL_AWS_DinD_Build --dir ${COVERITY_INTERMEDIATE} --cva --version ${APP_REVISION}";
 
           max_try_count=10;
           while ! ${cov_commit} && [ $max_try_count -ne 0 ]; do
