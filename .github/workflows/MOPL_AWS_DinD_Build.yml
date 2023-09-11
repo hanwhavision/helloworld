@@ -179,6 +179,6 @@ jobs:
           git commit -m "[artf116567] modify tag in ${{ inputs.SERVICE_NAME }} ${{ env.ENVPREFIX_lowcase }}"
 
           echo "docker push true"
-          #docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
-          #git push origin main
+          docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
+          git push origin main
         working-directory: smartparking-gitops/gitops/${{ inputs.SERVICE_NAME }}/env/${{ env.ENVPREFIX_lowcase }}
