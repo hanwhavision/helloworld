@@ -49,6 +49,7 @@ jobs:
       AWS_DEFAULT_REGION: "ap-northeast-2"
       BUILD_PATH: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
       IMAGE_REPO_NAME: "mopl/${{ inputs.SERVICE_NAME }}"
+
     container:
         image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
         options: --user root
@@ -144,7 +145,7 @@ jobs:
 
           ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command
           ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
-          cov_commit="${CSA_DIR}/bin/cov-commit-defects --url http://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --stream ${{ github.job }} --dir ${COVERITY_INTERMEDIATE} --cva --version ${APP_REVISION}";
+          cov_commit="${CSA_DIR}/bin/cov-commit-defects --url http://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --cva --version ${APP_REVISION}";
 
           max_try_count=10;
           while ! ${cov_commit} && [ $max_try_count -ne 0 ]; do
