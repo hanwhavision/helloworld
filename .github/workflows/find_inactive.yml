@@ -2,6 +2,14 @@ name: Find_Inactive_Users
 run-name:  R${{ github.run_number }} 🚀
 on:
   workflow_dispatch:
+    inputs:
+      DEPLOY:
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - development
 jobs:
   Build-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -15,7 +23,7 @@ jobs:
         id: deployment
         with:
           token: '${{ github.token }}'
-          environment: production
+          environment: ${{ inputs.DEPLOY }}
 
       - run: |
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
