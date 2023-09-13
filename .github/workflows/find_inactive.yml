@@ -2,13 +2,6 @@ name: Find_Inactive_Users
 run-name:  R${{ github.run_number }} 🚀
 on:
   workflow_dispatch:
-    inputs:
-      ORGANIZATION:
-        description: '확인할 조직명을 입력하세요.'
-        required: true
-        default: 'hanwhavision-admin-test'
-        type: string
-
 jobs:
   Build-GitHub-Actions:
     runs-on: ubuntu-latest
