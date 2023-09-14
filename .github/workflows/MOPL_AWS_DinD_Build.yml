@@ -59,7 +59,7 @@ jobs:
         options: --user root
         credentials:
            username: hyunsu.kang
-           password: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+           password: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
     steps:
       - run: |
           echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -113,7 +113,7 @@ jobs:
           repository: backend-sw-development-team4/smartparking-gitops
           path: smartparking-gitops
           ref: main
-          token: ${{  secrets.PACKAGE_CONTAINER_AUTH }}
+          token: ${{ secrets.PACKAGE_CONTAINER_AUTH }}
 
       - name: Check out repository code - ${{ inputs.SERVICE_NAME }}
         uses: actions/checkout@v3
@@ -173,7 +173,7 @@ jobs:
         run: |
           cp -R /home/docker/.aws ~/
           aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}
-          docker build --build-arg NPM_TOKEN=${{  secrets.PACKAGE_CONTAINER_AUTH }} --network=host -t ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} . || exit 1
+          docker build --build-arg NPM_TOKEN=${{ secrets.PACKAGE_CONTAINER_AUTH }} --network=host -t ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} . || exit 1
           docker tag ${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           docker images | grep amazonaws
         working-directory: ${{ env.BUILD_PATH }}
