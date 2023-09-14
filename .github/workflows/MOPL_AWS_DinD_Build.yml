@@ -43,8 +43,12 @@ on:
 jobs:
   MOPL_AWS_DinD_Build:
     runs-on: ubuntu-latest
+
+    permissions:
+      deployments: write
+
     env:
-      CIM_SERVER: "alb-sdo016-poc-cim-an2-2107583978.ap-northeast-2.elb.amazonaws.com"
+      CIM_SERVER: "coverity.devops.ai2concierge.com"
       AWS_ACCOUNT_ID: "852637827699"
       AWS_DEFAULT_REGION: "ap-northeast-2"
       BUILD_PATH: ./smartparking-gitops/${{ inputs.SERVICE_NAME }}
@@ -79,12 +83,21 @@ jobs:
         run: |
           echo "ENVPREFIX_BRANCH=main" >> "$GITHUB_ENV"
           echo "ENVPREFIX_lowcase=prod" >> "$GITHUB_ENV"
+          echo "ENVPREFIX_DEPLOYMENT=production" >> "$GITHUB_ENV"
 
       - name: Set ENV QA
         if: inputs.ENVPREFIX == 'QA'
         run: |
           echo "ENVPREFIX_BRANCH=release" >> "$GITHUB_ENV"
           echo "ENVPREFIX_lowcase=qa" >> "$GITHUB_ENV"
+          echo "ENVPREFIX_DEPLOYMENT=development" >> "$GITHUB_ENV"
+
+      - uses: chrnorm/deployment-action@v2
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: '${{ github.token }}'
+          environment: ${{ env.ENVPREFIX_DEPLOYMENT }}
 
       - name: Set ENV BUILD_START_TIME
         run: |
@@ -145,7 +158,7 @@ jobs:
 
           ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/smartparking-gitops --no-command
           ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
-          cov_commit="${CSA_DIR}/bin/cov-commit-defects --url http://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --cva --version ${APP_REVISION}";
+          cov_commit="${CSA_DIR}/bin/cov-commit-defects --url https://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --ssl --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --cva --version ${APP_REVISION}";
 
           max_try_count=10;
           while ! ${cov_commit} && [ $max_try_count -ne 0 ]; do
@@ -183,3 +196,21 @@ jobs:
           docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com/${{ env.IMAGE_REPO_NAME }}:${{ env.IMAGE_TAG }}
           git push origin main
         working-directory: smartparking-gitops/gitops/${{ inputs.SERVICE_NAME }}/env/${{ env.ENVPREFIX_lowcase }}
+
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: '${{ github.token }}'
+          environment-url: ${{ steps.deployment.outputs.environment_url }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: 'success'
+
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: '${{ github.token }}'
+          environment-url: ${{ steps.deployment.outputs.environment_url }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: 'failure'
