@@ -107,9 +107,6 @@ jobs:
         run: |
           echo "IMAGE_TAG=${{ env.ENVPREFIX_lowcase }}-${{ env.BUILD_START_TIME }}-R${{ github.run_number }}" >> "$GITHUB_ENV"
 
-      - name: Check out repository code - helloworld
-        uses: actions/checkout@v3
-
       - name: Check out repository code - smartparking-gitops
         uses: actions/checkout@v3
         with:
