@@ -46,8 +46,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
-          repository: cloud-development-team/{{ inputs.REPO_NAME }}
-          path: {{ inputs.REPO_NAME }}
+          repository: cloud-development-team/${{ inputs.REPO_NAME }}
+          path: ${{ env.BUILD_PATH }}
           ref: develop
           token: ${{ secrets.GH_MANAGEPACKAGE_TOKEN }}
 
