@@ -56,7 +56,7 @@ jobs:
         if: inputs.QUALITY_REPORT == true
         run: |
           echo "CI_STEP_StaticAnalysis"          
-          STREAM="{{ inputs.REPO_NAME }}"
+          STREAM="${{ inputs.REPO_NAME }}"
           CSA_DIR=/home/jenkins/cov-analysis
           COVERITY_CONFIG=${GITHUB_WORKSPACE}/coverity_config
           COVERITY_CONFIG_XML=${GITHUB_WORKSPACE}/coverity_config/config.xml
