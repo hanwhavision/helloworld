@@ -1,5 +1,5 @@
-name: sightmind
-run-name:  R${{ github.run_number }} with branch ${{ github.ref_name }} 🚀
+name: Sightmind
+run-name:  Sightmind R${{ github.run_number }} with branch ${{ github.ref_name }} 🚀
 on:
   workflow_dispatch:
     inputs:
@@ -31,6 +31,7 @@ jobs:
         image: ghcr.io/platform-sw-se-team/coverity-github:1.0.0
         options: --user root
         credentials:
+           username: jenkins
            password: ${{ secrets.GH_MANAGEPACKAGE_TOKEN }}
     steps:
       - run: |
