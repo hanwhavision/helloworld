@@ -70,7 +70,8 @@ jobs:
           ${CSA_DIR}/bin/cov-configure --config ${COVERITY_CONFIG_XML} --javascript
           ${CSA_DIR}/bin/cov-configure --config ${COVERITY_CONFIG_XML} --typescript
           
-          APP_REVISION=`git rev-parse --short HEAD`;
+          #APP_REVISION=`git rev-parse --short HEAD`;
+          APP_REVISION="16c7524"
 
           ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${{ env.BUILD_PATH }} --no-command
           ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
