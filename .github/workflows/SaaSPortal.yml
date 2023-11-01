@@ -34,7 +34,7 @@ on:
         - Stable        
 
 jobs:
-  sightmind-backend-mono:
+  saasportal:
     runs-on: ubuntu-latest
 
     permissions:
