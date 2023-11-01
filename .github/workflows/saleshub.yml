@@ -1,5 +1,5 @@
-name: Saleshub
-run-name:  Saleshub R${{ github.run_number }} with branch ${{ github.ref_name }} 🚀
+name: SaaS Portal
+run-name:  SaaS Portal R${{ github.run_number }} with branch ${{ github.ref_name }} 🚀
 on:
   workflow_dispatch:
     inputs:
