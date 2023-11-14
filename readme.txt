@@ -1,8 +1,1 @@
-test
-test2
-test3
-test4
-test5
-test6
-test7 for fira
-test8 for jira
+github, git을 자유롭게 테스트해볼 수 있는 연습장입니다.

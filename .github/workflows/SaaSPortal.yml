@@ -45,7 +45,7 @@ jobs:
       BUILD_PATH: ./${{ inputs.REPO_NAME }}
 
     container:
-        image: ghcr.io/platform-sw-se-team/coverity-github:1.0.0
+        image: ghcr.io/hanwhavision/coverity-github:1.0.0
         options: --user root
         credentials:
            username: jenkins

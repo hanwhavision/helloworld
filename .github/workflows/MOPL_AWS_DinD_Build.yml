@@ -55,7 +55,7 @@ jobs:
       IMAGE_REPO_NAME: "mopl/${{ inputs.SERVICE_NAME }}"
 
     container:
-        image: ghcr.io/backend-sw-development-team4/aws_ecr:1.0.2
+        image: ghcr.io/hanwhavision/coverity-github:1.0.0
         options: --user root
         credentials:
            username: hyunsu.kang
