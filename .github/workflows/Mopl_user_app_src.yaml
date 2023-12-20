@@ -1,0 +1,131 @@
+name: mopl user-app
+run-name:  User-app R${{ github.run_number }} with branch ${{ github.ref_name }} 🚀
+on:
+  workflow_dispatch:
+    inputs:
+      REPO_NAME:
+        description: '빌드할 저장소를 선택하세요.'
+        required: true
+        default: 'user-app'
+        type: choice
+        options:
+        - user-app
+      REPO_BRANCH:
+        description: '빌드할 저장소의 브랜치를 선택하세요.'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+        - development
+        - qa
+        - main
+      QUALITY_REPORT:
+        description: '소스코드 품질지표 (정적분석)을 산출 합니다.'
+        type: boolean
+        required: true
+        default: true
+      DEPLOY:
+        required: true
+        default: 'development'
+        type: choice
+        options:
+        - Development
+        - Stable        
+
+jobs:
+  saasportal:
+    runs-on: ubuntu-latest
+
+    permissions:
+      deployments: write
+
+    env:
+      CIM_SERVER: "cim.kdoggy.systems"
+      BUILD_PATH: ./${{ inputs.REPO_NAME }}
+
+    container:
+        image: ghcr.io/hanwhavision/coverity-github:1.0.0
+        options: --user root
+        credentials:
+           username: jenkins
+           password: ${{ secrets.GH_MANAGEPACKAGE_TOKEN }}
+    steps:
+      - run: |
+          echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+          echo "github.job: ${{ github.job }}"
+          echo "REPO_NAME: $REPO_NAME"
+          echo "QUALITY_REPORT: $QUALITY_REPORT"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE" #/__w/helloworld/helloworld
+        env:
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          QUALITY_REPORT: ${{ inputs.QUALITY_REPORT }}
+
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          repository: backend-sw-development-team4/${{ inputs.REPO_NAME }}
+          path: ${{ env.BUILD_PATH }}
+          ref: ${{ inputs.REPO_BRANCH }}
+          token: ${{ secrets.GH_MANAGEPACKAGE_TOKEN }}
+
+      - uses: chrnorm/deployment-action@v2
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: '${{ github.token }}'
+          environment: ${{ inputs.DEPLOY }}
+
+      - name: coverity
+        if: inputs.QUALITY_REPORT == true
+        run: |
+          echo "CI_STEP_StaticAnalysis"
+          
+          CSA_DIR=/home/jenkins/cov-analysis
+          COVERITY_CONFIG=${GITHUB_WORKSPACE}/coverity_config
+          COVERITY_CONFIG_XML=${GITHUB_WORKSPACE}/coverity_config/config.xml
+          COVERITY_INTERMEDIATE=${GITHUB_WORKSPACE}/coverity_emit_data
+          CIM_USER=stream_account
+          CIM_PASSWD=stream
+          STREAM="${{ inputs.REPO_NAME }}"
+
+          mkdir $COVERITY_CONFIG
+          mkdir $COVERITY_INTERMEDIATE
+
+          ${CSA_DIR}/bin/cov-configure --config ${COVERITY_CONFIG_XML} --javascript
+          ${CSA_DIR}/bin/cov-configure --config ${COVERITY_CONFIG_XML} --typescript
+
+          APP_REVISION=`git rev-parse --short HEAD`;
+
+          ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/${{ inputs.REPO_NAME }}/src --no-command 
+          ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
+          cov_commit="${CSA_DIR}/bin/cov-commit-defects --url https://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --ssl --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --version ${APP_REVISION}";
+
+          max_try_count=10;
+          while ! ${cov_commit} && [ $max_try_count -ne 0 ]; do
+              echo "Remaining  try-count : ${max_try_count}";
+              max_try_count=$((max_try_count-1)); 
+              sleep 120;
+              if [ $max_try_count -eq "0" ] ; then
+                  echo "fail cov-commit";
+                  exit 1;
+              fi
+          done
+        working-directory: ${{ env.BUILD_PATH }}
+
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: '${{ github.token }}'
+          environment-url: ${{ steps.deployment.outputs.environment_url }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: 'success'
+
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: '${{ github.token }}'
+          environment-url: ${{ steps.deployment.outputs.environment_url }}
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+          state: 'failure'
