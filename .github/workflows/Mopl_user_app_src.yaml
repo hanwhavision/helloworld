@@ -33,7 +33,7 @@ on:
         - Stable        
 
 jobs:
-  saasportal:
+  mopl-user-app:
     runs-on: ubuntu-latest
 
     permissions:
