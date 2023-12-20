@@ -97,8 +97,8 @@ jobs:
           APP_REVISION=`git rev-parse --short HEAD`;
 
           ${CSA_DIR}/bin/cov-build --config ${COVERITY_CONFIG_XML} --dir ${COVERITY_INTERMEDIATE} -fs-capture-search ${GITHUB_WORKSPACE}/${{ inputs.REPO_NAME }}/src \
-          -fs-capture-search ${GITHUB_WORKSPACE}/${{ inputs.REPO_NAME }}/*.js \
-          -fs-capture-search ${GITHUB_WORKSPACE}/${{ inputs.REPO_NAME }}/*.json --no-command 
+          -fs-capture-list ${GITHUB_WORKSPACE}/${{ inputs.REPO_NAME }}/*.js \
+          -fs-capture-list ${GITHUB_WORKSPACE}/${{ inputs.REPO_NAME }}/*.json --no-command 
           ${CSA_DIR}/bin/cov-analyze --aggressiveness-level high --all --dir ${COVERITY_INTERMEDIATE} --wait-for-license
           cov_commit="${CSA_DIR}/bin/cov-commit-defects --url https://${CIM_USER}:${CIM_PASSWD}@${{ env.CIM_SERVER }} --ssl --stream ${STREAM} --dir ${COVERITY_INTERMEDIATE} --version ${APP_REVISION}";
 
