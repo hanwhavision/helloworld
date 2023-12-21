@@ -116,7 +116,7 @@ jobs:
           COVERITY_INTERMEDIATE=${GITHUB_WORKSPACE}/coverity_emit_data
           CIM_USER=stream_account
           CIM_PASSWD=stream
-          STREAM="${{ inputs.REPO_NAME }}_android"
+          STREAM="mopl-${{ inputs.REPO_NAME }}-android"
 
           mkdir $COVERITY_CONFIG
           mkdir $COVERITY_INTERMEDIATE
