@@ -94,6 +94,9 @@ jobs:
 
       - name: Run Yarn Install
         run: |
+             pwd
+             cd ${GITHUB_WORKSPACE}
+             pwd
              yarn install   
              
       - uses: chrnorm/deployment-action@v2
