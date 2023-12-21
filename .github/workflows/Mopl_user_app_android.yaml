@@ -94,6 +94,7 @@ jobs:
 
       - name: Run Yarn Install
         run: |
+             cd user-app
              ls
              yarn install   
              
