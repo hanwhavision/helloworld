@@ -1,0 +1,15 @@
+version: '3'
+services:
+  nwc-jenkins-slave:
+    image: ghcr.io/hanwhavision/jenkins-slave:0.0.1
+    environment:
+      JENKINS_USER: jenkins
+      JENKINS_PASS: jenkins
+      SWARM_EXECUTORS: 1
+      SWARM_LABELS: ubuntu22.04
+      SWARM_MODE: exclusive
+      SWARM_MASTER_URL: http://55.101.57.44
+    volumes:
+    - /etc/timezone:/etc/timezone:ro
+    - /etc/localtime:/etc/localtime:ro
+    user: jenkins

@@ -1,0 +1,1 @@
+docker build -t ghcr.io/hanwhavision/jenkins-master:0.0.1 .
