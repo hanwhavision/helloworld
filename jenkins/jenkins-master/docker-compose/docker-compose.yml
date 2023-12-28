@@ -1,0 +1,16 @@
+version: '3'
+services:
+  jenkins-master:
+    privileged: true
+    image: ghcr.io/hanwhavision/jenkins-master:0.0.1
+    build:
+      context: ../dockerfile
+      dockerfile: Dockerfile
+      args:
+        INPUT_UID: ${HOST_UID:-1000}
+        INPUT_GID: ${HOST_GID:-1000}
+    volumes:
+    - ../volume:/var/jenkins_home
+    ports:
+    - 80:8080/tcp
+    - 50000:50000/tcp
